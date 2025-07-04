@@ -1,70 +1,116 @@
-## Foundry
+# Foundry
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+**Foundry** is a blazing fast, portable, and modular toolkit for Ethereum application development, written in Rust.
 
-Foundry consists of:
+It provides a comprehensive suite of tools to build, test, deploy, and interact with smart contracts efficiently.
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+---
+
+## Components
+
+* **Forge**
+  Ethereum testing and deployment framework — similar to Truffle, Hardhat, and DappTools.
+
+* **Cast**
+  Swiss army knife CLI tool for interacting with EVM smart contracts, sending transactions, querying chain data, and more.
+
+* **Anvil**
+  A local Ethereum node, similar to Ganache or Hardhat Network, for fast local development and testing.
+
+* **Chisel**
+  A fast, utilitarian, and verbose Solidity REPL (Read-Eval-Print Loop) for interactive contract experimentation.
+
+---
+
+## Sepolia Deployment Note
+
+To deploy contracts to the **Sepolia testnet** using Foundry:
+
+* Ensure you set the correct Sepolia RPC URL, typically from Infura or Alchemy, in your environment variables, for example:
+
+  ```bash
+  SEPOLIA_RPC_URL=https://sepolia.infura.io/v3/<your-infura-api-key>
+  ```
+
+* Use this RPC URL in your deploy commands to connect to Sepolia.
+
+---
 
 ## Documentation
 
-https://book.getfoundry.sh/
+* Official Foundry Book: [https://book.getfoundry.sh/](https://book.getfoundry.sh/)
 
-## Usage
+* Course Note Link:
+  [https://www.ethereum-blockchain-developer.com/courses/ethereum-course-2024/project-erc721-nft-with-remix-truffle-hardhat-and-foundry/deploy-smart-contracts-using-foundry](https://www.ethereum-blockchain-developer.com/courses/ethereum-course-2024/project-erc721-nft-with-remix-truffle-hardhat-and-foundry/deploy-smart-contracts-using-foundry)
 
-### Build
+---
 
-```shell
-$ forge build
+## Common Commands
+
+### Build contracts
+
+```bash
+forge build
 ```
 
-### Test
+### Run tests
 
-```shell
-$ forge test
+```bash
+forge test
 ```
 
-### Format
+### Format Solidity code
 
-```shell
-$ forge fmt
+```bash
+forge fmt
 ```
 
-### Gas Snapshots
+### Take gas snapshots
 
-```shell
-$ forge snapshot
+```bash
+forge snapshot
 ```
 
-### Anvil
+### Run local Ethereum node (Anvil)
 
-```shell
-$ anvil
+```bash
+anvil
 ```
 
-### Deploy
+---
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
+## Deployment Examples
+
+Deploy a contract script with RPC URL and private key:
+
+```bash
+forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
 ```
 
-```shell
-$ forge script script/Deploy.sol:SpacebearScript --broadcast --verify --rpc-url ${SEPOLIA_RPC_URL}
+Deploy and broadcast to Sepolia with verification:
+
+```bash
+forge script script/Deploy.sol:SpacebearScript --broadcast --verify --rpc-url ${SEPOLIA_RPC_URL}
 ```
 
-### Cast
+---
 
-```shell
-$ cast <subcommand>
+## Interact with contracts using Cast
+
+```bash
+cast <subcommand>
 ```
 
-### Help
+---
 
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
+## Help Commands
+
+```bash
+forge --help
+anvil --help
+cast --help
 ```
+
+---
+
+If you want, I can also help prepare similar docs for Hardhat or Truffle!
