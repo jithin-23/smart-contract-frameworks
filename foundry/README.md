@@ -52,7 +52,7 @@ $ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --pri
 ```
 
 ```shell
-$ forge script script/Deploy.sol:SpacebearScript --broadcast --verify --rpc-url ${SEPOLIA_RPC_URL}
+$ forge script script/Deploy.s.sol:SpacebearScript --broadcast --verify --rpc-url ${SEPOLIA_RPC_URL}
 ```
 
 ### Cast
