@@ -1,10 +1,12 @@
 # 🧠 Smart Wallet Contract Deployment & Interaction (Foundry + Anvil)
 
+---
+
 ## ✅ Prerequisites
 
 * [Foundry installed](https://book.getfoundry.sh/getting-started/installation)
-* Project initialized using `forge init`
-* A smart wallet contract (e.g. `SmartWallet.sol`)
+* Project initialized with `forge init`
+* Smart wallet contract ready (e.g. `SmartWallet.sol`)
 
 ---
 
@@ -14,7 +16,7 @@
 anvil
 ```
 
-This starts a local Ethereum node and provides 10 funded test accounts.
+This launches a local Ethereum node with 10 funded test accounts.
 
 ### 🔐 Available Accounts
 
@@ -52,7 +54,11 @@ forge script script/DeployWallet.s.sol:SmartWalletScript \
 
 ---
 
-## 🧪 Interact Using `cast` CLI
+# ⚡ Interacting with the Smart Wallet Contract
+
+---
+
+## ✅ Option 1: Interact Using `cast` CLI
 
 ### 🔎 View Owner
 
@@ -62,17 +68,11 @@ cast call 0x5FbDB2315678afecb367f032d93F642f64180aa3 \
   --rpc-url http://127.0.0.1:8545
 ```
 
-Expected output:
-
-```
-0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-```
-
 ---
 
 ### 💰 View Wallet Balance
 
-#### ✅ Owner (must provide `--from`)
+**Owner (must provide `--from`):**
 
 ```bash
 cast call 0x5FbDB2315678afecb367f032d93F642f64180aa3 \
@@ -81,7 +81,7 @@ cast call 0x5FbDB2315678afecb367f032d93F642f64180aa3 \
   --from 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 ```
 
-#### ❌ Non-owner (will revert)
+**Non-owner (will revert):**
 
 ```bash
 cast call 0x5FbDB2315678afecb367f032d93F642f64180aa3 \
@@ -90,13 +90,13 @@ cast call 0x5FbDB2315678afecb367f032d93F642f64180aa3 \
   --from 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
 ```
 
-> ⚠️ `cast call` is unsigned and must simulate with the correct `--from`. If omitted, it defaults to `0x000...000`.
+> ⚠️ `cast call` is unsigned; specifying `--from` simulates caller identity.
 
 ---
 
 ### 📨 Send ETH to Wallet
 
-#### From Owner
+**From Owner:**
 
 ```bash
 cast send 0x5FbDB2315678afecb367f032d93F642f64180aa3 \
@@ -105,7 +105,7 @@ cast send 0x5FbDB2315678afecb367f032d93F642f64180aa3 \
   --rpc-url http://127.0.0.1:8545
 ```
 
-#### From Non-owner
+**From Non-owner:**
 
 ```bash
 cast send 0x5FbDB2315678afecb367f032d93F642f64180aa3 \
@@ -160,7 +160,9 @@ cast balance 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC \
 
 ---
 
-## 🧾 Interact with Script (Method 2)
+## ✅ Option 2: Interact with Script
+
+Deploy and interact using a Foundry script:
 
 ```bash
 forge script script/InteractWalletAnvil.s.sol:InteractWalletScript \
@@ -168,7 +170,7 @@ forge script script/InteractWalletAnvil.s.sol:InteractWalletScript \
   --broadcast
 ```
 
-### 📝 Script Example
+### 📝 Example Script (InteractWalletAnvil.s.sol)
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -199,37 +201,37 @@ contract InteractWalletScript is Script {
     }
 
     function run() public {
-        // 1. Log owner
+        // Log owner
         address contractOwner = wallet.owner();
         console.log("Wallet owner is:", contractOwner);
 
-        // 2. Deposit ETH to wallet
+        // Deposit ETH to wallet (owner)
         vm.startBroadcast(account1Private);
         (bool sent, ) = payable(walletAddress).call{value: 1 ether}("");
         require(sent, "Transfer failed");
         vm.stopBroadcast();
 
-        // 3. View wallet balance
+        // View wallet balance
         vm.startBroadcast(account1Private);
         uint balance = wallet.viewBalance();
         console.log("Wallet balance:", balance);
         vm.stopBroadcast();
 
-        // 4. Set allowance
+        // Set allowance (owner)
         vm.startBroadcast(account1Private);
         wallet.setAllowance(account2Public, 4 ether);
         vm.stopBroadcast();
 
-        // 5. View allowance
+        // View allowance (spender)
         vm.startBroadcast(account2Private);
         uint allowance = wallet.viewMyAllowance();
         console.log("Account 2 allowance:", allowance);
 
-        // 6. Transfer ETH from wallet
+        // Transfer ETH from wallet (spender)
         wallet.transferFunds(payable(account3Public), 0.012 ether);
         vm.stopBroadcast();
 
-        // 7. Log new balance of account 3
+        // Log new balance of account 3
         console.log("Account 3 new balance:", account3Public.balance);
     }
 }
@@ -237,41 +239,38 @@ contract InteractWalletScript is Script {
 
 ---
 
-## 🧰 Foundry Script Execution: Phases & Options
+# 🧰 Foundry Script Execution: Phases & Options
 
-When you run a script using `forge script`, Foundry executes in **two phases**:
+When running scripts with `forge script`, Foundry executes in **two phases**:
 
 ### ⚙️ 1. Simulation Phase (Dry Run)
 
-* ✅ Runs the full script logic locally
-* ✅ Executes `console.log(...)`
-* ✅ Estimates gas and checks for reverts
-* ❌ No real transactions sent
-* 📌 Always runs first unless `--skip-simulation` is used
+* Runs the full script logic locally
+* Executes `console.log(...)` statements
+* Estimates gas and checks for reverts
+* No real transactions are sent
+* Always runs first unless `--skip-simulation` is passed
 
 ### 🚀 2. Broadcast Phase (Live Execution)
 
-* ✅ Only triggered when you pass `--broadcast`
-* ✅ Executes real transactions inside `vm.startBroadcast(...)` blocks
-* ✅ Signs and sends them to network
-* ✅ Logs hashes, gas used, and block number
-* ❌ Does not run `console.log(...)` during this phase
+* Runs only if `--broadcast` flag is given
+* Executes real on-chain transactions inside `vm.startBroadcast(...)` blocks
+* Signs and sends transactions to the specified network
+* Prints transaction hashes, gas used, block number
+* Does **not** execute `console.log(...)` during this phase
 
 ---
 
 ### 🔧 Key CLI Options
 
-| Flag                  | Description                                 |
-| --------------------- | ------------------------------------------- |
-| `--broadcast`         | Sends real transactions on-chain            |
-| `--rpc-url`           | Specifies the target network                |
-| `--sig-check`         | Simulate and verify signatures (no tx sent) |
-| `--skip-simulation`   | Skip simulation; only send txs              |
-| `--silent`            | Hide console output                         |
-| `--dry-run` *(alias)* | Just simulate, do not broadcast             |
-
-
-Certainly! Here’s a polished and consistent version of **Options 3, 4, and 5** you can add to your README alongside the others:
+| Flag                | Description                                   |
+| ------------------- | --------------------------------------------- |
+| `--broadcast`       | Send real transactions on-chain               |
+| `--rpc-url`         | Specify target network RPC endpoint           |
+| `--sig-check`       | Simulate and verify signatures (no broadcast) |
+| `--skip-simulation` | Skip local simulation; only send transactions |
+| `--silent`          | Suppress console output                       |
+| `--dry-run` (alias) | Just simulate without broadcasting            |
 
 ---
 
@@ -283,15 +282,15 @@ import abi from "./SmartWalletABI.json";
 
 async function main() {
   const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545");
-  const signer = provider.getSigner(0); // Use first Anvil account
+  const signer = provider.getSigner(0); // First Anvil account
 
-  const walletAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // Replace with your deployed contract address
+  const walletAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // Your deployed contract address
   const wallet = new ethers.Contract(walletAddress, abi, signer);
 
   // Set allowance for a spender
   await wallet.setAllowance("0x70997970C51812dc3A010C7d01b50e0d17dc79C8", ethers.parseEther("1.0"));
 
-  // View balance (only callable by owner)
+  // View balance (owner only)
   const balance = await wallet.viewBalance();
   console.log("Wallet balance:", ethers.formatEther(balance));
 }
@@ -304,11 +303,11 @@ main().catch(console.error);
 ## ✅ Option 4: Use Remix IDE with Anvil
 
 1. Open [Remix IDE](https://remix.ethereum.org/)
-2. Go to the **Deploy & Run Transactions** tab
+2. Go to **Deploy & Run Transactions** tab
 3. Select **Custom HTTP Provider** in Environment dropdown
-4. Enter `http://127.0.0.1:8545` as the provider URL
-5. Paste your deployed contract's **ABI** and **address** in the relevant fields
-6. Interact with your smart contract via Remix's GUI interface
+4. Enter RPC URL: `http://127.0.0.1:8545`
+5. Paste your contract ABI and address
+6. Interact using Remix’s GUI
 
 ---
 
@@ -322,11 +321,11 @@ curl -X POST http://127.0.0.1:8545 \
     "method": "eth_call",
     "params": [{
       "to": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-      "data": "0x8da5cb5b"     // owner() function selector
+      "data": "0x8da5cb5b"   // owner() function selector
     }, "latest"],
     "id": 1
   }'
 ```
 
-> **Note:** The `data` field contains the function selector (first 4 bytes of keccak256 hash of the function signature). Use tools like `cast` or `ethers.js` to encode calls easily.
+> **Note:** The `data` is the function selector (first 4 bytes of keccak256 hash of the signature). Use `cast` or ethers.js to encode function calls.
 
